@@ -1,206 +1,1239 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<html lang="zh-CN">
 
 <head>
-    <meta charset="utf-8" />
-    <title></title>
-    <link rel="stylesheet" href="css/kg.css">
-    <link rel="stylesheet" href="css/materialize.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药物相互作用预测平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --warning-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+
         body {
-            background: linear-gradient(90deg, #ffffff, #d2e0f8)
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #01050a0b;
         }
 
-        .container {
-            width: auto;
-            height: auto;
-
-            /* float: inline-end; */
-            /* display: flex; */
+        .navbar {
+            background-color: var(--dark-color);
         }
 
-        .btn_container {
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+
+        .visualization-container {
+            height: 300px;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .molecule-3d {
+            height: 250px;
+            background-color: #000;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .protein-sequence {
+            height: 250px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            overflow: auto;
+            font-family: monospace;
+        }
+
+        .knowledge-graph {
+            height: 600px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .feature-fusion {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .risk-matrix {
+            height: 400px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        .attention-weights {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .ablation-study {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .case-browser {
+            height: 300px;
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: auto;
+        }
+
+        .search-result {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+
+        .warning-flash {
+            animation: flash 1s infinite;
+        }
+
+        @keyframes flash {
+            0% {
+                background-color: rgba(231, 76, 60, 0.2);
+            }
+
+            50% {
+                background-color: rgba(231, 76, 60, 0.8);
+            }
+
+            100% {
+                background-color: rgba(231, 76, 60, 0.2);
+            }
+        }
+
+        .slider-container {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .tab-content {
+            padding: 15px;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .res-margin {
+            margin-top: 24px;
+            margin-bottom: 24px;
+        }
+
+        .vidoback {
             width: 100%;
-            height: 10rem;
+            height: 100%;
+            margin-left: 0px;
+            margin-right: 0px;
+            padding: 0px;
+        }
+
+        .myVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            margin-left: 0px;
+            margin-right: 0px;
+            padding: 0px;
+            /* max-width: 1280px;
+            max-height: 720px; */
             text-align: center;
         }
 
-        .btn_container:after {
-            content: '';
-            display: inline-block;
-            height: 100%;
-            vertical-align: middle;
+        .background-video {
+            position: absolute;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            background: no-repeat;
+            background-size: cover;
+            z-index: -1;
         }
 
-        #toast-container {
-            top: 80%;
-            right: 45%;
+        /* From Uiverse.io by escannord */
+        /* .loader {
+            transform: rotateX(70deg);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        } */
+
+        #loading-box .loading-left-bg,
+        #loading-box .loading-right-bg {
+            position: fixed;
+            z-index: 999998;
+            width: 50%;
+            height: 100%;
+            background-color: rgb(81 81 81 / 80%);
+            transition: all 0.7s cubic-bezier(0.42, 0, 0, 1.01);
+            backdrop-filter: blur(10px);
+        }
+
+        #loading-box .loading-right-bg {
+            right: 0;
+        }
+
+        #loading-box>.spinner-box {
+            position: fixed;
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 70vh;
+        }
+
+        .loading-word{
+            position: absolute;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transform: translateY(64px);
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        #loading-box .spinner-box {
+            position: absolute;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transform: translateY(64px);
+            text-align: center;
+        }
+
+        p.loading-title {
+            font-size: 40px;
+            margin: 20px 10px 4px 10px;
+        }
+
+        #loading-box .spinner-box .configure-core {
+            width: 100%;
+            height: 100%;
+            background-color: #37474f;
+        }
+
+        div.loaded div.loading-left-bg {
+            transform: translate(-100%, 0);
+        }
+
+        div.loaded div.loading-right-bg {
+            transform: translate(100%, 0);
+        }
+
+        div.loaded div.spinner-box {
+            display: none !important;
+        }
+
+        .loader {
+            /* position: absolute; */
+            /* text-align: center; */
+            top: calc(50% - 32px);
+            left: calc(50% - 32px);
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            perspective: 600px;
+            transition: all 0.7s cubic-bezier(0.42, 0, 0, 1.01);
+        }
+
+        .inner {
+            position: absolute;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .inner.one {
+            left: 0%;
+            top: 0%;
+            animation: rotate-one 1s linear infinite;
+            border-bottom: 5px solid #efeffa;
+        }
+
+        .inner.two {
+            right: 0%;
+            top: 0%;
+            animation: rotate-two 1s linear infinite;
+            border-right: 5px solid #efeffa;
+        }
+
+        .inner.three {
+            right: 0%;
+            bottom: 0%;
+            animation: rotate-three 1s linear infinite;
+            border-top: 5px solid #efeffa;
+        }
+
+        @keyframes rotate-one {
+            0% {
+                transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+            }
+
+            100% {
+                transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+            }
+        }
+
+        @keyframes rotate-two {
+            0% {
+                transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+            }
+
+            100% {
+                transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+            }
+        }
+
+        @keyframes rotate-three {
+            0% {
+                transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+            }
+
+            100% {
+                transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+            }
         }
     </style>
 </head>
 
-<body style="height: auto;width: auto;">
-    <div class="row" style="margin-top: 0px;display: fill;margin-bottom: 0px;">
-        <ul class="collapsible" data-collapsible="accordion" style="
-        margin-left: 4rem;width: 26rem; display: none;
-    ">
-            <li class="active">
-                <div class="collapsible-header">节点数据</div>
-                <div class="collapsible-body" style="display: block;">
-                    <div class="row">
-                        <form class="col s12">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <textarea id="t1" class="materialize-textarea"
-                                        style="border-bottom: 0px;width: 24rem;"></textarea>
-                                    <label for="textarea1">请输入节点数据</label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </li>
-            <li class="active">
-                <div class="collapsible-header">关系数据</div>
-                <div class="collapsible-body" style="display: block;">
-                    <div class="row">
-                        <form class="col s12">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <textarea id="t2" class="materialize-textarea"
-                                        style="border-bottom: 0px;width: 24rem;"></textarea>
-                                    <label for="textarea1">请输入关系数据</label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </li>
-            <li class="active">
-                <div class="collapsible-header">节点配色</div>
-                <div class="collapsible-body" style="display: block;">
-                    <div class="row">
-                        <form class="col s12">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <textarea id="t3" class="materialize-textarea"
-                                        style="border-bottom: 0px;width: 24rem;"></textarea>
-                                    <label for="textarea1">请输入节点配色</label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </li>
-            <li class="active">
-                <div class="collapsible-header">关系配色</div>
-                <div class="collapsible-body" style="display: block;">
-                    <div class="row">
-                        <form class="col s12">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <textarea id="t4" class="materialize-textarea"
-                                        style="border-bottom: 0px;width: 24rem;"></textarea>
-                                    <label for="textarea1">请输入关系配色</label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </li>
-            <li class="active">
-                <div class="collapsible-header">回显内容</div>
-                <div class="collapsible-body" style="display: block;">
-                    <div class="row">
-                        <form class="col s12">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <textarea id="t5" class="materialize-textarea"
-                                        style="border-bottom: 0px;width: 24rem;"></textarea>
-                                    <label for="textarea1">请输入回显内容</label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </li>
-            <li class="btn_container">
-                <a class="waves-effect waves-light btn-large" href="javascript:render();">渲染</a>
-            </li>
-        </ul>
-        <div>
-            <div id="container" class="card-image container">
-            </div>
+<!--加载动画 start-->
+<div id="loading-box" class="hideSlow">
+    <div class="loading-left-bg"></div>
+    <div class="loading-right-bg"></div>
+    <div class="spinner-box">
+        <div class="loader">
+            <div class="inner one"></div>
+            <div class="inner two"></div>
+            <div class="inner three"></div>
+        </div>
+        <div class="loading-word">
+            <p class="loading-title" id="loading-title">药物相互作用预测平台</p>
+            <span id="loading-text">Loading...</span>
         </div>
     </div>
-    <script src="js/d3.v3.min.js"></script>
-    <script src="js/kg.js"></script>
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/materialize.min.js"></script>
-    <script>
-        var t1_text = '{' +
-            '"1":{"name":"Gene","type":"node"},\n' +
-            '"2":{"name":"Tax","type":"node"},\n' +
-            '"3":{"name":"Biological process","type":"node"},\n' +
-            '"4":{"name":"Cellular Component","type":"node"},\n' +
-            '"5":{"name":"Molecular Function","type":"node"},\n' +
-            '"6":{"name":"Pathway","type":"node"},\n' +
-            '"7":{"name":"Anatomy","type":"node"},\n' +
-            '"8":{"name":"Diseease","type":"node"},\n' +
-            '"9":{"name":"Compound","type":"node"},\n' +
-            '"10":{"name":"Atc","type":"node"},\n' +
-            '"11":{"name":"Side-effect","type":"node"},\n' +
-            '"12":{"name":"Pharmacologic class","type":"node"},\n' +
-            '"13":{"name":"Symptom","type":"node"}\n' +
-            "}"
-        document.getElementById("t1").value = t1_text;
-        var t2_text = "[\n" +
-            '{ "source":1, "target": 2, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 3, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 4, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 5, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 6, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 7, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 8, "rela": "", "type": "资源" },\n' +
-            '{ "source":1, "target": 9, "rela": "", "type": "资源" },\n' +
-            '{ "source":9, "target": 10, "rela": "", "type": "资源" },\n' +
-            '{ "source":9, "target": 11, "rela": "", "type": "资源" },\n' +
-            '{ "source":9, "target": 12, "rela": "", "type": "资源" },\n' +
-            '{ "source":9, "target": 8, "rela": "", "type": "资源" },\n' +
-            '{ "source":8, "target": 13, "rela": "", "type": "资源" }\n' +
-            "]"
-        document.getElementById("t2").value = t2_text;
+</div>
+<!--加载动画 end-->
 
-        contentHook = function (item) {
-            return "<div>" + item.name + "</div>"
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-capsule-pill me-2" style="font-style: normal;font-size: larger;">药物相互作用预测平台</i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="one nav-item">
+                        <a id="li-nav" class="nav-link active">主页</a>
+                    </li>
+                    <li class="two nav-item">
+                        <a id="li-nav" class="nav-link">药物输入</a>
+                    </li>
+                    <li class="three nav-item">
+                        <a id="li-nav" class="nav-link">预测流程</a>
+                    </li>
+                    <li class="four nav-item">
+                        <a id="li-nav" class="nav-link">结果展示</a>
+                    </li>
+                    <li class="five nav-item">
+                        <a id="li-nav" class="nav-link">扩展功能</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首页动画 -->
+    <div id="home-section" class="vidoback" style="display:block">
+        <iframe src="//bilibili.com/blackboard/html5mobileplayer.html?isOutside=true&aid=114387931106125&bvid=BV1KjLazdEtj&cid=29574432989&p=1&autoplay=1&hideCoverInfo=1&danmaku=0&&high_quality=1&muted=1"
+         allowfullscreen="allowfullscreen" width="100%" height="1115" scrolling="no" frameborder="0"
+         sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"></iframe>
+    </div>
+
+
+    <!-- 一、药物对输入模块 -->
+    <div id="input-section" class="container res-margin" style="display:none">
+        <section id="input-section" class="mb-5">
+            <h2 class="mb-4"><i class="bi bi-search me-2"></i>药物对输入模块</h2>
+
+            <div class="row">
+                <!-- 智能搜索栏 -->
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-search me-2"></i>智能搜索栏
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="drug1" class="form-label">药物 1</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="drug1" placeholder="输入药物名称或ID...">
+                                        <button class="btn btn-primary" type="button">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                    <div class="search-result mt-2">
+                                        <h6>华法林 (Warfarin)</h6>
+                                        <p><small>分子式: C<sub>19</sub>H<sub>16</sub>O<sub>4</sub> | ID: DB00682</small>
+                                        </p>
+                                        <p><small>靶点蛋白: VKORC1, CYP2C9</small></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="drug2" class="form-label">药物 2</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="drug2" placeholder="输入药物名称或ID...">
+                                        <button class="btn btn-primary" type="button">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                    <div class="search-result mt-2">
+                                        <h6>阿司匹林 (Aspirin)</h6>
+                                        <p><small>分子式: C<sub>9</sub>H<sub>8</sub>O<sub>4</sub> | ID: DB00945</small></p>
+                                        <p><small>靶点蛋白: PTGS1, PTGS2</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 特征可视化面板 -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-graph-up me-2"></i>特征可视化面板
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="featureTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="protein-tab" data-bs-toggle="tab"
+                                        data-bs-target="#protein" type="button" role="tab">蛋白质序列</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="molecule-tab" data-bs-toggle="tab"
+                                        data-bs-target="#molecule" type="button" role="tab">分子结构</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="knowledge-tab" data-bs-toggle="tab"
+                                        data-bs-target="#knowledge" type="button" role="tab">知识图谱</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="featureTabsContent" style="padding: 0px;">
+                                <div class="tab-pane fade show active" id="protein" role="tabpanel"
+                                    style="padding: 15px;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>VKORC1 蛋白质序列 (华法林靶点)</h6>
+                                            <div class="protein-sequence">
+                                                <pre>MWSRRRSGHL<span class="highlight">WAACLVLLSA</span>WHTLRFNSQY
+LCKVAQLTSF<span class="highlight">EEMKKGHIYQ</span>EELIKGCTEF
+VGQEPKSLVH<span class="highlight">TVAALAASLA</span>ASVQVLDTCS
+QEEPQTSRED</pre>
+                                                <div class="alert alert-info">
+                                                    <small>ESM2-8M 编码中... 高亮区域表示关键结合位点</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>PTGS1 蛋白质序列 (阿司匹林靶点)</h6>
+                                            <div class="protein-sequence">
+                                                <pre>MSRQSISLRF<span class="highlight">PLLLLLLSPI</span>LPAVFPGVAS
+ANPCCSHPCQ<span class="highlight">NRGVCMSVGF</span>DQYKCDCTRT
+GFYGENCTTPEFLTRIKLLL<span class="highlight">KPTPNTVHYT</span>
+LRSDRVTLGG</pre>
+                                                <div class="alert alert-info">
+                                                    <small>ESM2-8M 编码中... 高亮区域表示关键结合位点</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="molecule" role="tabpanel" style="padding: 15px;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>华法林分子结构</h6>
+                                            <div class="molecule-3d position-relative">
+                                                <!-- 使用图片替代黑框 -->
+                                                <img src="res\Warfarin_Conformer3D_medium.png"
+                                                    class="img-fluid w-100 h-100 rounded" alt="华法林分子结构">
+                                                <div class="position-absolute bottom-0 end-0 p-2">
+                                                    <button class="btn btn-sm btn-light">
+                                                        <i class="bi bi-arrows-move"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-light">
+                                                        <i class="bi bi-zoom-in"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>阿司匹林分子结构</h6>
+                                            <div class="molecule-3d position-relative">
+                                                <!-- 使用图片替代黑框 -->
+                                                <img src="res\Aspirin_Conformer3D_medium.png"
+                                                    class="img-fluid w-100 h-100 rounded" alt="阿司匹林分子结构">
+                                                <div class="position-absolute bottom-0 end-0 p-2">
+                                                    <button class="btn btn-sm btn-light">
+                                                        <i class="bi bi-arrows-move"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-light">
+                                                        <i class="bi bi-zoom-in"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="knowledge" role="tabpanel">
+                                    <div class="knowledge-graph position-relative">
+                                        <!-- 插入自己的知识图谱图片，填充整个区域 -->
+                                        <!-- <img src="knowledge graph.png"
+                                        class="img-fluid w-100 h-100 rounded object-fit-cover" alt="药物关联知识图谱"
+                                        onclick="window.open(this.src)"> -->
+                                        <iframe id="myiframe" src="page.html"
+                                            style="width: 100%; height: 100%; border: none;"></iframe>
+                                        <!-- 图片上方的文字说明，使用半透明背景 -->
+                                        <div
+                                            class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-75 text-white rounded-bottom">
+                                            <p class="mb-1">药物关联知识图谱</p>
+                                            <p class="mb-0"><small>包含13种实体类型: 药物、蛋白质、疾病、副作用、通路...</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 二、预测流程演示 -->
+    <div id="prediction-section" class="container res-margin" style="display: none">
+
+        <section id="prediction-section" class="mb-5">
+            <h2 class="mb-4"><i class="bi bi-gear-fill me-2"></i>预测流程演示</h2>
+
+            <div class="row">
+                <!-- 特征融合动画 -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-diagram-3 me-2"></i>特征融合动画
+                        </div>
+                        <div class="card-body">
+                            <div class="feature-fusion">
+                                <!-- 特征融合动画将在这里渲染 -->
+                                <div width="auto" height="auto">
+                                    <img src="res\特征融合流程动画.png" class="img-fluid" alt="特征融合流程" width="auto" height="auto">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <img src="res\color.png" height="100">
+                                <div class="col-md-4" style="display: inline-block;">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">底层</h6>
+                                            <p class="card-text"><small>三种特征独立处理</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="display: inline-block;">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">中层</h6>
+                                            <p class="card-text"><small>AF层多头注意力流动</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="display: inline-block;">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">顶层</h6>
+                                            <p class="card-text"><small>TPF层特征乘积运算</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关键参数动态调节 -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-sliders me-2"></i>关键参数动态调节
+                        </div>
+                        <div class="card-body">
+                            <div class="slider-container">
+                                <label for="attention-heads" class="form-label">注意力头数 (h)</label>
+                                <input type="range" class="form-range" min="2" max="5" step="1" id="attention-heads"
+                                    value="3">
+                                <div class="d-flex justify-content-between">
+                                    <span>2</span>
+                                    <span>3</span>
+                                    <span>4</span>
+                                    <span>5</span>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span class="badge bg-primary">当前值: 3</span>
+                                </div>
+                            </div>
+
+                            <div class="slider-container">
+                                <label for="learning-rate" class="form-label">学习率</label>
+                                <input type="range" class="form-range" min="1" max="5" step="1" id="learning-rate"
+                                    value="3">
+                                <div class="d-flex justify-content-between">
+                                    <span>0.0001</span>
+                                    <span>0.001</span>
+                                    <span>0.01</span>
+                                    <span>0.1</span>
+                                    <span>1.0</span>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span class="badge bg-primary">当前值: 0.01</span>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-info-circle me-2"></i>
+                                调整参数可实时观察模型性能变化
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间结果监控 -->
+                <div class="col-md-12 mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-graph-up me-2"></i>中间结果监控
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4" align="center">
+                                    <h6>特征向量可视化 (t-SNE)</h6>
+                                    <div class="visualization-container">
+                                        <!-- t-SNE可视化将在这里渲染 -->
+                                        <div width="300" height="250">
+                                            <i class="bi bi-scatter-chart fs-1 text-primary"></i>
+                                            <img src="res\t-SNE.png" alt="t-SNE" width="300" height="300"
+                                                onclick="window.open(this.src)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" align="center">
+                                    <h6>模态贡献度热力图</h6>
+                                    <div class="visualization-container">
+                                        <!-- 热力图将在这里渲染 -->
+                                        <div class="text-center">
+                                            <!-- <i class="bi bi-grid-3x3 fs-1 text-primary"></i>
+                                        <p class="mt-3">各模态贡献度热力图</p> -->
+                                            <img src="res\药物相互作用.png" alt="t-SNE" width="280" height="280"
+                                                onclick="window.open(this.src)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" align="center">
+                                    <h6>损失函数变化曲线</h6>
+                                    <div class="visualization-container">
+                                        <!-- 损失函数曲线将在这里渲染 -->
+                                        <div width="300" height="250">
+                                            <!-- <img src="color.png" width="280" height="50" > -->
+                                            <img src="res\训练损失曲线.png" alt="训练损失曲线" width="300" height="198" style="margin-top: 45px;"
+                                                onclick="window.open(this.src)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 三、结果展示系统 -->
+    <div id="results-section" class="container res-margin" style="display: none">
+
+        <section id="results-section" class="mb-5">
+            <h2 class="mb-4"><i class="bi bi-clipboard-data me-2"></i>结果展示系统</h2>
+
+            <div class="row">
+                <!-- 风险等级矩阵 -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-grid-3x3 me-2"></i>风险等级矩阵
+                        </div>
+                        <div class="card-body">
+                            <div class="risk-matrix">
+                                <!-- 风险矩阵将在这里渲染 -->
+                                <div class="text-center py-3">
+                                    <h6>华法林-阿司匹林相互作用风险预测</h6>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>相互作用类型</th>
+                                                <th>风险概率</th>
+                                                <th>风险等级</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="warning-flash">
+                                                <td>出血风险增加</td>
+                                                <td>0.89</td>
+                                                <td><span class="badge bg-danger">高风险</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>抗凝作用增强</td>
+                                                <td>0.76</td>
+                                                <td><span class="badge bg-warning text-dark">中高风险</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>胃肠道刺激</td>
+                                                <td>0.65</td>
+                                                <td><span class="badge bg-warning text-dark">中高风险</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>肝酶水平变化</td>
+                                                <td>0.42</td>
+                                                <td><span class="badge bg-info">中等风险</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>肾功能影响</td>
+                                                <td>0.28</td>
+                                                <td><span class="badge bg-success">低风险</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="alert alert-danger mt-3">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    警告: 华法林与阿司匹林联用显著增加出血风险，建议医生密切监测INR值
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 性能指标 -->
+                <div class="col-md-4">
+                    <div class="card" style="height: 645px;">
+                        <div class="card-header">
+                            <i class="bi bi-bar-chart-line me-2"></i>性能指标
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>指标</th>
+                                            <th>值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>准确率 (Accuracy)</td>
+                                            <td>0.92</td>
+                                        </tr>
+                                        <tr>
+                                            <td>精确率 (Precision)</td>
+                                            <td>0.89</td>
+                                        </tr>
+                                        <tr>
+                                            <td>召回率 (Recall)</td>
+                                            <td>0.87</td>
+                                        </tr>
+                                        <tr>
+                                            <td>F1分数</td>
+                                            <td>0.88</td>
+                                        </tr>
+                                        <tr>
+                                            <td>AUC</td>
+                                            <td>0.94</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="padding-top: 0px;" class="visualization-container">
+                                <!-- ROC曲线将在这里渲染 -->
+                                <div class="text-center">
+                                    <!-- <i class="bi bi-graph-up-arrow fs-1 text-primary"></i> -->
+                                    <p style="margin: 0px;">ROC曲线 (AUC = 0.94)</p>
+                                    <img src="res\ROC.png" alt="t-SNE" width="280" height="280"
+                                        onclick="window.open(this.src)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 解释性模块 -->
+                <div class="col-md-12 mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-lightbulb me-2"></i>解释性模块
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="explainTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="attention-tab" data-bs-toggle="tab"
+                                        data-bs-target="#attention" type="button" role="tab">注意力权重回溯</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="ablation-tab" data-bs-toggle="tab"
+                                        data-bs-target="#ablation" type="button" role="tab">消融实验对比</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="explainTabsContent">
+                                <div class="tab-pane fade show active" id="attention" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-6" align="center">
+                                            <h6>蛋白质序列关键位点</h6>
+                                            <div width="300" height="260">
+                                                <!-- 蛋白质序列注意力权重将在这里渲染 -->
+                                                <div width="300" height="260">
+                                                    <img src="res\蛋白质序列注意力权重.png" width="300" height="300" alt="蛋白质序列注意力权重">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>特征缺失模式选择</h6>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="ablationMode"
+                                                    id="fullModel" checked>
+                                                <label class="form-check-label" for="fullModel">
+                                                    完整模型 (所有特征)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="ablationMode"
+                                                    id="noProtein">
+                                                <label class="form-check-label" for="noProtein">
+                                                    无蛋白质序列特征
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="ablationMode"
+                                                    id="noMolecule">
+                                                <label class="form-check-label" for="noMolecule">
+                                                    无分子结构特征
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="ablationMode"
+                                                    id="noKG">
+                                                <label class="form-check-label" for="noKG">
+                                                    无知识图谱特征
+                                                </label>
+                                            </div>
+                                            <button class="btn btn-primary btn-sm mt-2">应用</button>
+                                        </div>
+                                        <!-- <div class="col-md-6" align="center">
+                                            <h6>性能指标变化</h6>
+                                            <div class="visualization-container">
+                                                <div class="text-center py-3">
+                                                    <i class="bi bi-bar-chart-steps fs-1 text-primary"></i>
+                                                    <p class="mt-2">不同特征组合的性能对比</p>
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+
+    <!-- 四、扩展功能设计 -->
+    <div id="extension-section" class="container res-margin" style="display: none">
+        <section id="extension-section" class="mb-5">
+            <h2 class="mb-4"><i class="bi bi-box-seam me-2"></i>扩展功能设计</h2>
+
+            <div class="row">
+                <!-- 案例库浏览器 -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-collection me-2"></i>案例库浏览器
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="搜索案例...">
+                                        <button class="btn btn-primary" type="button">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button class="btn btn-outline-primary" type="file">
+                                        <i class="bi bi-upload me-1">上传自定义案例</i>
+                                    </button>
+                                    <!-- <input class="form-control" type="file" id="batchFile"> -->
+                                </div>
+                            </div>
+
+                            <div class="case-browser">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action active">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">华法林 - 阿司匹林</h6>
+                                            <small><span class="badge bg-danger">高风险</span></small>
+                                        </div>
+                                        <p class="mb-1"><small>抗凝血剂与抗血小板药物相互作用</small></p>
+                                        <small>主要风险: 出血风险增加</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">西咪替丁 - 华法林</h6>
+                                            <small><span class="badge bg-warning text-dark">中高风险</span></small>
+                                        </div>
+                                        <p class="mb-1"><small>H2受体拮抗剂与抗凝血剂相互作用</small></p>
+                                        <small>主要风险: 华法林代谢减慢，抗凝作用增强</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">氟西汀 - 帕罗西汀</h6>
+                                            <small><span class="badge bg-warning text-dark">中高风险</span></small>
+                                        </div>
+                                        <p class="mb-1"><small>SSRI类抗抑郁药相互作用</small></p>
+                                        <small>主要风险: 血清素综合征</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">阿托伐他汀 - 红霉素</h6>
+                                            <small><span class="badge bg-warning text-dark">中高风险</span></small>
+                                        </div>
+                                        <p class="mb-1"><small>他汀类药物与大环内酯类抗生素相互作用</small></p>
+                                        <small>主要风险: 横纹肌溶解症风险增加</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">地高辛 - 胺碘酮</h6>
+                                            <small><span class="badge bg-danger">高风险</span></small>
+                                        </div>
+                                        <p class="mb-1"><small>强心苷与抗心律失常药物相互作用</small></p>
+                                        <small>主要风险: 地高辛血药浓度升高，毒性增加</small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户自定义药物对 -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-plus-circle me-2"></i>用户自定义药物对
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="customDrug1" class="form-label">药物 1</label>
+                                    <input type="text" class="form-control" id="customDrug1" placeholder="输入药物名称">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customDrug2" class="form-label">药物 2</label>
+                                    <input type="text" class="form-control" id="customDrug2" placeholder="输入药物名称">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customSmiles1" class="form-label">SMILES 结构 1 (可选)</label>
+                                    <textarea class="form-control" id="customSmiles1" rows="2"
+                                        placeholder="输入SMILES结构"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customSmiles2" class="form-label">SMILES 结构 2 (可选)</label>
+                                    <textarea class="form-control" id="customSmiles2" rows="2"
+                                        placeholder="输入SMILES结构"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customProtein" class="form-label">靶点蛋白 (可选)</label>
+                                    <input type="text" class="form-control" id="customProtein" placeholder="输入靶点蛋白">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-lightning-charge me-1"></i>预测相互作用
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 批量预测工具 -->
+                <div class="col-md-12 mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-file-earmark-spreadsheet me-2"></i>批量预测工具
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="batchFile" class="form-label">上传药物对列表 (CSV/Excel)</label>
+                                        <input class="form-control" type="file" id="batchFile">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">模板下载</label>
+                                        <div>
+                                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-file-earmark-excel me-1"></i>Excel模板
+                                            </a>
+                                            <a href="#" class="btn btn-outline-secondary btn-sm ms-2">
+                                                <i class="bi bi-file-earmark-text me-1"></i>CSV模板
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary">
+                                        <i class="bi bi-play-fill me-1"></i>开始批量预测
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info">
+                                        <h6><i class="bi bi-info-circle me-2"></i>批量预测说明</h6>
+                                        <ul class="mb-0">
+                                            <li>支持同时预测多对药物相互作用</li>
+                                            <li>可上传最多100对药物</li>
+                                            <li>结果将以表格形式展示并可导出</li>
+                                            <li>处理时间取决于药物对数量</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- <video id="background-video" autoplay loop muted absolute>
+    <source src="home.mp4" type="video/mp4">
+</video> -->
+
+    <footer class="bg-dark text-white py-4">
+        <div id="end" class="container" style="display: block">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>药物相互作用预测平台</h5>
+                    <p>基于多模态深度学习的药物相互作用预测与解释平台</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>相关链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">DrugBank数据库</a></li>
+                        <li><a href="#" class="text-white">项目文档</a></li>
+                        <li><a href="#" class="text-white">API接口</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>联系我们</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-envelope me-2"></i>zhaohengpeng@wust.edu.cn</li>
+                        <li><i class="bi bi-github me-2"></i>GitHub</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2025 药物相互作用预测平台 | 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 这里可以添加JavaScript代码来实现交互功能
+        document.addEventListener('DOMContentLoaded', function () {
+            // 注意力头数滑块
+            const attentionHeadsSlider = document.getElementById('attention-heads');
+            attentionHeadsSlider.addEventListener('input', function () {
+                const value = this.value;
+                this.nextElementSibling.nextElementSibling.querySelector('.badge').textContent =
+                    `当前值: ${value}`;
+                // 这里可以添加更新可视化的代码
+            });
+
+            // 学习率滑块
+            const learningRateSlider = document.getElementById('learning-rate');
+            const learningRates = ['0.0001', '0.001', '0.01', '0.1', '1.0'];
+            learningRateSlider.addEventListener('input', function () {
+                const index = parseInt(this.value) - 1;
+                this.nextElementSibling.nextElementSibling.querySelector('.badge').textContent =
+                    `当前值: ${learningRates[index]}`;
+                // 这里可以添加更新可视化的代码
+            });
+
+            // 特征标签切换
+            const featureTabs = document.getElementById('featureTabs');
+            featureTabs.addEventListener('click', function (event) {
+                if (event.target.classList.contains('nav-link')) {
+                    // 这里可以添加更新可视化的代码
+                }
+            });
+
+            // 消融实验模式切换
+            const ablationModes = document.querySelectorAll('input[name="ablationMode"]');
+            ablationModes.forEach(mode => {
+                mode.addEventListener('change', function () {
+                    if (this.checked) {
+                        // 这里可以添加更新可视化的代码
+                    }
+                });
+            });
+        });
+
+        function doSomething() {
+            // 使用 document.body.appendChild() 方法将放大后的图片添加到当前窗口
+            document.body.appendChild(createEnlargedImage());
         }
 
-        function render() {
-            try {
-                $("svg").remove()
-                var data = {}
-                data.nodes = JSON.parse(document.getElementById("t1").value);
-                data.links = JSON.parse(document.getElementById("t2").value);
-                var config = {
-                    //鼠标mouseover后的弹窗
-                    content: document.getElementById("t5").value,
-                    contentHook: null,
-                    //节点配色方案（可为空)
-                    nodeColor: document.getElementById("t3").value ? JSON.parse(document.getElementById("t3")
-                        .value) : null,
-                    //连接线配色方案（可为空）
-                    linkColor: document.getElementById("t4").value ? JSON.parse(document.getElementById("t4")
-                        .value) : null,
-                    width: document.getElementById("container").clientWidth,
-                    height: document.getElementById("container").clientHeight
+        function createEnlargedImage() {
+            // 创建一个新的 img 元素来显示放大后的图片
+            const enlargedImage = document.createElement('img');
+            enlargedImage.src = this.src;
+            enlargedImage.style.width = "1226";
+            enlargedImage.style.height = "808";
+            return enlargedImage;
+        }
+
+        //使用排他思想
+        //获取导航栏按钮
+        let lis = document.querySelectorAll('li')
+        //获取五个要切换的盒子
+        let page01 = document.getElementById('home-section')
+        let page02 = document.getElementById('input-section')
+        let page03 = document.getElementById('prediction-section')
+        let page04 = document.getElementById('results-section')
+        let page05 = document.getElementById('extension-section')
+        let end = document.getElementById('end')
+        //点击导航栏，改变Iframe的src属性，实现页面切换
+        for (let i = 0; i < lis.length; i++) {
+            //绑定点击事件
+            lis[i].onclick = function (event) {
+                if (event.target.textContent == "主页") {
+                    // console.log('1')
+                    changPage()
+                    page01.style.display = 'block'
+                } else if (event.target.textContent == "药物输入") {
+                    // console.log('2')
+                    changPage()
+                    page02.style.display = 'block'
+                } else if (event.target.textContent == "预测流程") {
+                    // console.log('3')
+                    changPage()
+                    page03.style.display = 'block'
+                } else if (event.target.textContent == "结果展示") {
+                    // console.log('4')
+                    changPage()
+                    page04.style.display = 'block'
+                } else if (event.target.textContent == "扩展功能") {
+                    // console.log('5')
+                    changPage()
+                    page05.style.display = 'block'
+                } else {
+                    // console.log('这是一个其他类型的元素')
                 }
-                initKG(data, config, "#container")
-            } catch (err) {
-                Materialize.toast('渲染存在异常', 2000)
-                console.info(err)
+
             }
         }
-        render();
+        //封装一个排他思想的函数
+        function changPage() {
+            //获取所有page
+            document.querySelectorAll('.container').forEach(el => {
+                el.style.display = 'none'
+            })
+            document.querySelectorAll('.vidoback').forEach(el => {
+                el.style.display = 'none'
+            })
+
+            // document.getElementById('li-nav').className = 'nav-link'
+
+            end.style.display = 'block'
+
+            $('.nav-link').on('click', function () {
+                $(this).addClass("active").parent().siblings().find('.nav-link').removeClass("active");
+            })
+        }
     </script>
 
+    <script>
+        // 获取动画
+        let loader = document.getElementById('loading-box');
+        // 加载完成事件
+        function display() {
+            // 加载完成，隐藏动画，显示内容
+            
+            loader.style.display = "none";
+        }
+        
+        function fadeOut() {
+            $(".hideSlow").fadeOut(2000);
+            // $(".hideSlow").fadeTo("3000",0.7);
+        }
+
+        window.onload = setTimeout(display,3000)
+        window.onload = setTimeout(fadeOut,500)
+        
+    </script>
+
+
 </body>
+
+</html>

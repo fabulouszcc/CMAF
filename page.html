@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="css/kg.css">
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <style>
+        body {
+            background: linear-gradient(90deg, #ffffff, #d2e0f8)
+        }
+
+        .container {
+            width: auto;
+            height: auto;
+
+            /* float: inline-end; */
+            /* display: flex; */
+        }
+
+        .btn_container {
+            width: 100%;
+            height: 10rem;
+            text-align: center;
+        }
+
+        .btn_container:after {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+        }
+
+        #toast-container {
+            top: 80%;
+            right: 45%;
+        }
+    </style>
+</head>
+
+<body style="height: auto;width: auto;">
+    <div class="row" style="margin-top: 0px;display: fill;margin-bottom: 0px;">
+        <ul class="collapsible" data-collapsible="accordion" style="
+        margin-left: 4rem;width: 26rem; display: none;
+    ">
+            <li class="active">
+                <div class="collapsible-header">节点数据</div>
+                <div class="collapsible-body" style="display: block;">
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="t1" class="materialize-textarea"
+                                        style="border-bottom: 0px;width: 24rem;"></textarea>
+                                    <label for="textarea1">请输入节点数据</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li class="active">
+                <div class="collapsible-header">关系数据</div>
+                <div class="collapsible-body" style="display: block;">
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="t2" class="materialize-textarea"
+                                        style="border-bottom: 0px;width: 24rem;"></textarea>
+                                    <label for="textarea1">请输入关系数据</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li class="active">
+                <div class="collapsible-header">节点配色</div>
+                <div class="collapsible-body" style="display: block;">
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="t3" class="materialize-textarea"
+                                        style="border-bottom: 0px;width: 24rem;"></textarea>
+                                    <label for="textarea1">请输入节点配色</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li class="active">
+                <div class="collapsible-header">关系配色</div>
+                <div class="collapsible-body" style="display: block;">
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="t4" class="materialize-textarea"
+                                        style="border-bottom: 0px;width: 24rem;"></textarea>
+                                    <label for="textarea1">请输入关系配色</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li class="active">
+                <div class="collapsible-header">回显内容</div>
+                <div class="collapsible-body" style="display: block;">
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="t5" class="materialize-textarea"
+                                        style="border-bottom: 0px;width: 24rem;"></textarea>
+                                    <label for="textarea1">请输入回显内容</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li class="btn_container">
+                <a class="waves-effect waves-light btn-large" href="javascript:render();">渲染</a>
+            </li>
+        </ul>
+        <div>
+            <div id="container" class="card-image container">
+            </div>
+        </div>
+    </div>
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/kg.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+    <script>
+        var t1_text = '{' +
+            '"1":{"name":"Gene","type":"node"},\n' +
+            '"2":{"name":"Tax","type":"node"},\n' +
+            '"3":{"name":"Biological process","type":"node"},\n' +
+            '"4":{"name":"Cellular Component","type":"node"},\n' +
+            '"5":{"name":"Molecular Function","type":"node"},\n' +
+            '"6":{"name":"Pathway","type":"node"},\n' +
+            '"7":{"name":"Anatomy","type":"node"},\n' +
+            '"8":{"name":"Diseease","type":"node"},\n' +
+            '"9":{"name":"Compound","type":"node"},\n' +
+            '"10":{"name":"Atc","type":"node"},\n' +
+            '"11":{"name":"Side-effect","type":"node"},\n' +
+            '"12":{"name":"Pharmacologic class","type":"node"},\n' +
+            '"13":{"name":"Symptom","type":"node"}\n' +
+            "}"
+        document.getElementById("t1").value = t1_text;
+        var t2_text = "[\n" +
+            '{ "source":1, "target": 2, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 3, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 4, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 5, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 6, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 7, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 8, "rela": "", "type": "资源" },\n' +
+            '{ "source":1, "target": 9, "rela": "", "type": "资源" },\n' +
+            '{ "source":9, "target": 10, "rela": "", "type": "资源" },\n' +
+            '{ "source":9, "target": 11, "rela": "", "type": "资源" },\n' +
+            '{ "source":9, "target": 12, "rela": "", "type": "资源" },\n' +
+            '{ "source":9, "target": 8, "rela": "", "type": "资源" },\n' +
+            '{ "source":8, "target": 13, "rela": "", "type": "资源" }\n' +
+            "]"
+        document.getElementById("t2").value = t2_text;
+
+        contentHook = function (item) {
+            return "<div>" + item.name + "</div>"
+        }
+
+        function render() {
+            try {
+                $("svg").remove()
+                var data = {}
+                data.nodes = JSON.parse(document.getElementById("t1").value);
+                data.links = JSON.parse(document.getElementById("t2").value);
+                var config = {
+                    //鼠标mouseover后的弹窗
+                    content: document.getElementById("t5").value,
+                    contentHook: null,
+                    //节点配色方案（可为空)
+                    nodeColor: document.getElementById("t3").value ? JSON.parse(document.getElementById("t3")
+                        .value) : null,
+                    //连接线配色方案（可为空）
+                    linkColor: document.getElementById("t4").value ? JSON.parse(document.getElementById("t4")
+                        .value) : null,
+                    width: document.getElementById("container").clientWidth,
+                    height: document.getElementById("container").clientHeight
+                }
+                initKG(data, config, "#container")
+            } catch (err) {
+                Materialize.toast('渲染存在异常', 2000)
+                console.info(err)
+            }
+        }
+        render();
+    </script>
+
+</body>

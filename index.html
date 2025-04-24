@@ -225,7 +225,7 @@
             height: 70vh;
         }
 
-        .loading-word{
+        .loading-word {
             position: absolute;
             color: #ffffff;
             font-size: 0.95rem;
@@ -390,11 +390,11 @@
 
     <!-- 首页动画 -->
     <div id="home-section" class="vidoback" style="display:block">
-        <iframe style="width:100%;aspect-ratio:16/9;"src="//bilibili.com/blackboard/html5mobileplayer.html?isOutside=true&aid=114387931106125
+        <iframe id="myframe" style="width:100%;aspect-ratio:16/9;" src="//bilibili.com/blackboard/html5mobileplayer.html?isOutside=true&aid=114387931106125
         &bvid=BV1KjLazdEtj&cid=29574432989&p=1&autoplay=1
-        &hideCoverInfo=1&danmaku=0&&high_quality=1&muted=1&fjw=1"
-         allowfullscreen="allowfullscreen" scrolling="no" frameborder="0"
-         sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"></iframe>
+        &hideCoverInfo=1&danmaku=0&amp;high_quality=1&muted=1&fjw=1&loop=1" allowfullscreen="allowfullscreen"
+            scrolling="no" frameborder="0"
+            sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"></iframe>
     </div>
 
 
@@ -574,7 +574,8 @@ LRSDRVTLGG</pre>
                             <div class="feature-fusion">
                                 <!-- 特征融合动画将在这里渲染 -->
                                 <div width="auto" height="auto">
-                                    <img src="res\特征融合流程动画.png" class="img-fluid" alt="特征融合流程" width="auto" height="auto">
+                                    <img src="res\特征融合流程动画.png" class="img-fluid" alt="特征融合流程" width="auto"
+                                        height="auto">
                                 </div>
                             </div>
                             <div class="row mt-3">
@@ -691,8 +692,8 @@ LRSDRVTLGG</pre>
                                         <!-- 损失函数曲线将在这里渲染 -->
                                         <div width="300" height="250">
                                             <!-- <img src="color.png" width="280" height="50" > -->
-                                            <img src="res\训练损失曲线.png" alt="训练损失曲线" width="300" height="198" style="margin-top: 45px;"
-                                                onclick="window.open(this.src)">
+                                            <img src="res\训练损失曲线.png" alt="训练损失曲线" width="300" height="198"
+                                                style="margin-top: 45px;" onclick="window.open(this.src)">
                                         </div>
                                     </div>
                                 </div>
@@ -847,7 +848,8 @@ LRSDRVTLGG</pre>
                                             <div width="300" height="260">
                                                 <!-- 蛋白质序列注意力权重将在这里渲染 -->
                                                 <div width="300" height="260">
-                                                    <img src="res\蛋白质序列注意力权重.png" width="300" height="300" alt="蛋白质序列注意力权重">
+                                                    <img src="res\蛋白质序列注意力权重.png" width="300" height="300"
+                                                        alt="蛋白质序列注意力权重">
                                                 </div>
                                             </div>
                                         </div>
@@ -1221,18 +1223,31 @@ LRSDRVTLGG</pre>
         // 加载完成事件
         function display() {
             // 加载完成，隐藏动画，显示内容
-            
+
             loader.style.display = "none";
         }
-        
+
         function fadeOut() {
             $(".hideSlow").fadeOut(2000);
             // $(".hideSlow").fadeTo("3000",0.7);
         }
 
-        window.onload = setTimeout(display,3000)
-        window.onload = setTimeout(fadeOut,500)
-        
+        window.onload = setTimeout(display, 3000)
+        window.onload = setTimeout(fadeOut, 500)
+
+        $(document).ready(function () {
+            function refreshIframe() {
+                const iframe = $('#myframe'); // 将 'yourIframeId' 替换为您 iframe 的实际 ID
+                if (iframe.length > 0) {
+                    iframe.attr('src', iframe.attr('src')); // 重新加载 iframe 的 src
+                } else {
+                    console.error('找不到 ID 为 yourIframeId 的 iframe 元素。');
+                }
+            }
+
+            // 设置每隔 162000 毫秒（2 分 42 秒）执行一次 refreshIframe 函数
+            setInterval(refreshIframe, 162000);
+        });
     </script>
 
 
